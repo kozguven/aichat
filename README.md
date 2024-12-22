@@ -13,7 +13,7 @@ This is a PHP-based chat application that integrates with AI models to provide i
 ## Requirements
 
 - PHP 7.4 or higher
-- MySQL/MariaDB
+- Sqlite
 - Web server (Apache/Nginx)
 
 ## Installation
