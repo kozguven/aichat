@@ -20,7 +20,7 @@ This is a PHP-based chat application that integrates with AI models to provide i
 
 1. Clone the repository
 ```bash
-git clone [your-repository-url]
+git clone https://github.com/kozguven/aichat.git
 ```
 
 2. Copy the example configuration file
