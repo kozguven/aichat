@@ -13,9 +13,12 @@ if (!isset($_SESSION['current_chat_id'])) {
     ];
 }
 
+// Sohbetleri tersine çevir
+$reversed_chats = array_reverse($_SESSION['chats'], true);
+
 header('Content-Type: application/json');
 echo json_encode([
-    'chats' => $_SESSION['chats'],
+    'chats' => $reversed_chats,
     'current_chat_id' => $_SESSION['current_chat_id'],
     'current_chat' => $_SESSION['chats'][$_SESSION['current_chat_id']] ?? null
 ]);
