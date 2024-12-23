@@ -41,42 +41,30 @@ if (!empty(OPENAI_API_KEY)) {
 // Claude modelleri
 if (!empty(CLAUDE_API_KEY)) {
     try {
-        $ch = curl_init('https://api.anthropic.com/v1/messages');
+        $ch = curl_init('https://api.anthropic.com/v1/models');
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
             'x-api-key: ' . CLAUDE_API_KEY,
             'anthropic-version: 2023-06-01'
         ]);
         
-        // Claude'un mevcut modellerini manuel olarak tanımla
-        // Bu modeller Claude API'sinin desteklediği güncel modellerdir
-        $claudeModels = [
-            ['id' => 'claude-3-5-sonnet-20241022', 'name' => 'Claude 3.5 Sonnet'],
-            ['id' => 'claude-3-5-haiku-20241022', 'name' => 'Claude 3.5 Haiku'],
-            ['id' => 'claude-3-opus-20240229', 'name' => 'Claude 3 Opus'],
-            ['id' => 'claude-3-sonnet-20240229', 'name' => 'Claude 3 Sonnet'],
-            ['id' => 'claude-3-haiku-20240307', 'name' => 'Claude 3 Haiku']
-        ];
+        $response = curl_exec($ch);
+        $data = json_decode($response, true);
         
-        // API'yi test et - eğer çalışıyorsa modelleri ekle
-        $testResponse = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        
-        if ($httpCode !== 401) { // API anahtarı geçerliyse
-            foreach ($claudeModels as $model) {
+        if ($data && isset($data['data'])) {
+            foreach ($data['data'] as $model) {
                 $models[] = [
                     'id' => $model['id'],
-                    'name' => $model['name'],
+                    'name' => $model['display_name'],
                     'provider' => 'claude'
                 ];
             }
-        } else {
-            error_log('Claude API key is invalid');
         }
     } catch (Exception $e) {
         error_log('Claude Models Error: ' . $e->getMessage());
     }
 }
+   
 
 // Gemini modelleri
 if (!empty(GEMINI_API_KEY)) {
