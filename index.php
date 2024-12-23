@@ -384,58 +384,44 @@ session_start();
         }
 
         function formatMessage(content) {
-            let formattedContent = '';
-            
-            // Metni parçalara ayır (kod blokları ve normal metin)
-            const parts = content.split(/(```[\s\S]*?```)/g);
-            
-            for (let part of parts) {
-                if (part.startsWith('```')) {
-                    // Kod bloğu
-                    const match = part.match(/```(\w+)?\n([\s\S]*?)```/);
-                    if (match) {
-                        const [, language, code] = match;
-                        const lang = language || 'plaintext';
-                        const originalCode = code.trim();
-                        const escapedCode = escapeHtml(originalCode);
-                        formattedContent += `<pre class="position-relative" data-code="${escapedCode}"><code class="language-${lang}">${escapedCode}</code><button class="copy-button" onclick="copyCode(this)">Kopyala</button></pre>`;
+            // Markdown işaretlerini HTML'e dönüştür
+            let formattedContent = content
+                // Önce kod bloklarını işaretle
+                .split(/(```[\s\S]*?```)/g)
+                .map(part => {
+                    if (part.startsWith('```')) {
+                        const match = part.match(/```(\w+)?\n([\s\S]*?)```/);
+                        if (match) {
+                            const [, language = 'plaintext', code] = match;
+                            const escapedCode = escapeHtml(code.trim());
+                            return `<pre class="position-relative" data-code="${escapedCode}">
+                                    <code class="language-${language}">${escapedCode}</code>
+                                    <button class="copy-button" onclick="copyCode(this)">Kopyala</button>
+                                   </pre>`;
+                        }
+                        return part;
                     }
-                } else if (part.trim()) {
-                    // Normal metin
-                    // Önce satır içi kodları işle
-                    part = part.replace(/`([^`]+)`/g, '<code>$1</code>');
                     
-                    // Sonra paragrafları işle
-                    const paragraphs = part.trim().split('\n\n');
-                    formattedContent += paragraphs
-                        .map(p => p.trim())
-                        .filter(p => p)
-                        .map(p => `<p>${p}</p>`)
-                        .join('\n');
-                }
-            }
-            
+                    // Satır içi kod bloklarını işle
+                    return part
+                        .replace(/`([^`]+)`/g, '<code>$1</code>')
+                        // Satır sonlarını <br> ile değiştir
+                        .split('\n')
+                        .map(line => line.trim())
+                        .filter(line => line)
+                        .join('<br>');
+                })
+                .join('');
+
             return formattedContent;
         }
-        
-        function displayMessage(message) {
-            const messageDiv = $('<div>')
-                .addClass('message ' + (message.role === 'user' ? 'message-user' : 'message-ai'))
-                .html(formatMessage(message.content));
-            
-            $('#chatBox').append(messageDiv);
-            
-            // Kod bloklarını renklendir
-            Prism.highlightAll();
-            
-            // Sohbet penceresini en alta kaydır
-            $('#chatBox').scrollTop($('#chatBox')[0].scrollHeight);
-        }
-        
+
         function escapeHtml(text) {
             const div = document.createElement('div');
             div.textContent = text;
-            return div.innerHTML.replace(/"/g, '&quot;'); // Çift tırnakları da escape et
+            return div.innerHTML
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
         }
 
         function sendMessage() {
@@ -525,6 +511,9 @@ session_start();
                     if (data.content) {
                         currentResponse += data.content;
                         aiMessageDiv.html(formatMessage(currentResponse));
+                        requestAnimationFrame(() => {
+                            Prism.highlightAllUnder(aiMessageDiv[0]);
+                        });
                         cursorDiv.appendTo(aiMessageDiv);
                         $('#chatBox').scrollTop($('#chatBox')[0].scrollHeight);
                     }
@@ -541,6 +530,27 @@ session_start();
                 aiMessageDiv.html('<div class="error">İstek gönderilirken hata oluştu</div>');
                 $('#sendButton').prop('disabled', false);
             });
+        }
+
+        function displayMessage(message) {
+            const messageDiv = $('<div>')
+                .addClass('message')
+                .addClass(message.role === 'user' ? 'message-user' : 'message-ai');
+
+            // Mesaj içeriğini formatla
+            const formattedContent = formatMessage(message.content);
+            messageDiv.html(formattedContent);
+
+            // Mesajı sohbet kutusuna ekle
+            $('#chatBox').append(messageDiv);
+
+            // DOM güncellemesini bekle ve sonra renklendirme yap
+            requestAnimationFrame(() => {
+                Prism.highlightAllUnder(messageDiv[0]);
+            });
+
+            // Sohbet kutusunu en alta kaydır
+            $('#chatBox').scrollTop($('#chatBox')[0].scrollHeight);
         }
 
         // Model listesini yükle
