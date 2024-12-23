@@ -1,5 +1,6 @@
 # Configuration files
 config.php
+settings.db
 
 # IDE specific files
 .idea/
