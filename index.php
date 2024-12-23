@@ -9,6 +9,8 @@ session_start();
     <title>AI Chat Interface</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup-templating.min.js"></script>
@@ -191,11 +193,47 @@ session_start();
         ::-webkit-scrollbar-thumb:hover {
             background: #555;
         }
+        .sidebar-toggle {
+        position: absolute;
+        left: 320px;
+        top: 20px;
+        z-index: 1000;
+        background: #fff;
+        border: 1px solid #dee2e6;
+        border-radius: 50%;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        }
+
+        .sidebar.collapsed {
+            margin-left: -300px;
+        }
+
+        .sidebar-toggle.collapsed {
+            left: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                margin-left: -300px;
+            }
+            .sidebar.expanded {
+                margin-left: 0;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container-fluid h-100">
         <div class="chat-container">
+            <div class="sidebar-toggle">
+                <i class="fas fa-chevron-left"></i>
+            </div>
             <div class="sidebar p-3">
                 <div class="d-flex flex-column">
                     <select id="modelSelect" class="form-select mb-3">
@@ -576,6 +614,11 @@ session_start();
                 storage.saveChat(currentChat);
             }
         });
+        function toggleSidebar() {
+            $('.sidebar').toggleClass('collapsed');
+            $('.sidebar-toggle').toggleClass('collapsed');
+            $('.sidebar-toggle i').toggleClass('fa-chevron-left fa-chevron-right');
+        }
 
         // Event Listeners
         $(document).ready(function() {
@@ -587,6 +630,10 @@ session_start();
                     sendMessage();
                 }
             });
+            $('.sidebar-toggle').click(function() {
+                toggleSidebar();
+            });
+            
         });
     </script>
 </body>
