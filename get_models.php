@@ -51,9 +51,11 @@ if (!empty(CLAUDE_API_KEY)) {
         // Claude'un mevcut modellerini manuel olarak tanımla
         // Bu modeller Claude API'sinin desteklediği güncel modellerdir
         $claudeModels = [
+            ['id' => 'claude-3-5-sonnet-20241022', 'name' => 'Claude 3.5 Sonnet'],
+            ['id' => 'claude-3-5-haiku-20241022', 'name' => 'Claude 3.5 Haiku'],
             ['id' => 'claude-3-opus-20240229', 'name' => 'Claude 3 Opus'],
             ['id' => 'claude-3-sonnet-20240229', 'name' => 'Claude 3 Sonnet'],
-            ['id' => 'claude-2.1', 'name' => 'Claude 2.1']
+            ['id' => 'claude-3-haiku-20240307', 'name' => 'Claude 3 Haiku']
         ];
         
         // API'yi test et - eğer çalışıyorsa modelleri ekle
